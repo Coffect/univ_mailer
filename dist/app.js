@@ -7,6 +7,8 @@ const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
+const mailer_1 = require("./config/mailer");
+const db_config_1 = __importDefault(require("./config/db.config"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const router = express_1.default.Router();
@@ -21,9 +23,66 @@ router.get('/', (req, res) => {
 app.post('/univ/mail', async (req, res) => {
     const userEmail = req.body.userEmail;
     const univName = req.body.univName;
+    const creaetd = new Date();
+    const expired = new Date(Date.now() + 10 * 60 * 1000); // 현재 시간에서 10분 후의 시간
+    const code = Math.floor(100000 + Math.random() * 900000); // 6자리 코드
+    const q = process.env.SQL_UPDATECERT;
+    try {
+        await (0, mailer_1.send)(userEmail, code);
+        db_config_1.default.query(q, [userEmail, code, creaetd, expired, true], (err, res) => {
+            if (err)
+                throw err;
+            else
+                return res;
+        });
+        return res.json({
+            status: true,
+            code: 200,
+            msg: '메일전송성공'
+        });
+    }
+    catch (err) {
+        return res.json({
+            status: false,
+            code: 505,
+            msg: err
+        });
+    }
 });
 app.post('/univ/cert', async (req, res) => {
     const certCode = req.body.certCode;
+    const userEmail = req.body.userEmail;
+    try {
+        const q = process.env.SQL_SELECTCERT;
+        const db = await new Promise((resolve, rejcet) => {
+            db_config_1.default.query(q, [userEmail], (err, res) => {
+                if (err)
+                    rejcet(err);
+                else
+                    resolve(res);
+            });
+        });
+        if (Array.isArray(db)) {
+            const expiredAt = db[0].expiredAt; // 예: "2025-07-15T11:39:01.000Z"
+            const expiredDate = new Date(expiredAt);
+            const now = new Date();
+            if (certCode == db[0].certCode && db[0].valid && expiredDate > now) {
+                return res.json({
+                    status: true,
+                    code: 200,
+                    msg: '인증성공'
+                });
+            }
+        }
+        throw new Error();
+    }
+    catch (err) {
+        return res.json({
+            status: false,
+            code: 505,
+            msg: err
+        });
+    }
 });
 // 서버 실행
 app.listen(port, () => {

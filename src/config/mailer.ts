@@ -13,8 +13,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // async () => await send();
-export async function send(dest: string) {
-  const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6자리 코드
+export async function send(dest: string, code: number) {
   const mailOptions = {
     from: USER_ID,
     to: dest,
