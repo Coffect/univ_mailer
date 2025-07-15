@@ -28,13 +28,16 @@ app.post('/univ/mail', async (req, res) => {
     const code = Math.floor(100000 + Math.random() * 900000); // 6자리 코드
     const q = process.env.SQL_UPDATECERT;
     try {
-        await (0, mailer_1.send)(userEmail, code);
-        db_config_1.default.query(q, [userEmail, code, creaetd, expired, true], (err, res) => {
-            if (err)
-                throw err;
-            else
-                return res;
+        const data = await (0, mailer_1.send)(userEmail, code);
+        await new Promise((resolve, reject) => {
+            db_config_1.default.query(q, [userEmail, code, creaetd, expired, true], (err, res) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(res);
+            });
         });
+        console.log(data);
         return res.json({
             status: true,
             code: 200,
@@ -42,9 +45,9 @@ app.post('/univ/mail', async (req, res) => {
         });
     }
     catch (err) {
-        return res.json({
+        return res.status(500).json({
             status: false,
-            code: 505,
+            code: 500,
             msg: err
         });
     }
@@ -77,9 +80,9 @@ app.post('/univ/cert', async (req, res) => {
         throw new Error();
     }
     catch (err) {
-        return res.json({
+        return res.status(500).json({
             status: false,
-            code: 505,
+            code: 500,
             msg: err
         });
     }

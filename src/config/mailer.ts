@@ -35,6 +35,6 @@ export async function send(dest: string, code: number) {
     });
     return result;
   } catch (error) {
-    return error;
+    throw error;
   }
 }

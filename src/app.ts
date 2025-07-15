@@ -31,9 +31,11 @@ app.post('/univ/mail', async (req, res) => {
   const q = process.env.SQL_UPDATECERT!;
   try {
     await send(userEmail, code);
-    pool.query(q, [userEmail, code, creaetd, expired, true], (err, res) => {
-      if (err) throw err;
-      else return res;
+    await new Promise((resolve, reject) => {
+      pool.query(q, [userEmail, code, creaetd, expired, true], (err, res) => {
+        if (err) return reject(err);
+        else resolve(res);
+      });
     });
     return res.json({
       status: true,
@@ -41,9 +43,9 @@ app.post('/univ/mail', async (req, res) => {
       msg: '메일전송성공'
     });
   } catch (err) {
-    return res.json({
+    return res.status(500).json({
       status: false,
-      code: 505,
+      code: 500,
       msg: err
     });
   }
@@ -75,9 +77,9 @@ app.post('/univ/cert', async (req, res) => {
     }
     throw new Error();
   } catch (err) {
-    return res.json({
+    return res.status(500).json({
       status: false,
-      code: 505,
+      code: 500,
       msg: err
     });
   }
