@@ -6,6 +6,13 @@ import morgan from 'morgan';
 import { send } from './config/mailer';
 import pool from './config/db.config';
 import { QueryResult, RowDataPacket } from 'mysql2';
+import {
+  CertCodeExpired,
+  CertCodeInvaild,
+  CertCodeNotMatch,
+  errorHandler,
+  MailSendFail
+} from './config/error';
 
 dotenv.config();
 const app = express();
@@ -17,9 +24,12 @@ app.use(express.json()); // JSON 본문을 파싱
 app.use(express.urlencoded({ extended: true })); // HTML Form에서 전송된 데이터를 파싱
 app.use(morgan('dev')); // HTTP Req 요청 로그 출력
 
-router.get('/', (req, res) => {
-  res.json({ message: 'Health check' });
-});
+// 에러 핸들러 미들웨어를 라우터 정의 전에 등록
+app.use(errorHandler);
+
+// router.get('/', (req, res) => {
+//   res.json({ message: 'Health check' });
+// });
 
 app.post('/univ/mail', async (req, res) => {
   const userEmail = req.body.userEmail;
@@ -38,16 +48,16 @@ app.post('/univ/mail', async (req, res) => {
       });
     });
     return res.json({
-      status: true,
-      code: 200,
-      msg: '메일전송성공'
+      success: true,
+      statusCode: 200,
+      code: null,
+      description: '메일 전송 성공'
     });
   } catch (err) {
-    return res.status(500).json({
-      status: false,
-      code: 500,
-      msg: err
-    });
+    // description을 문자열로 전달
+    const errorMessage =
+      err instanceof Error ? err.message : '알 수 없는 에러가 발생했습니다.';
+    return res.status(500).json(new MailSendFail(errorMessage));
   }
 });
 
@@ -67,21 +77,30 @@ app.post('/univ/cert', async (req, res) => {
       const expiredAt = db[0].expiredAt; // 예: "2025-07-15T11:39:01.000Z"
       const expiredDate = new Date(expiredAt);
       const now = new Date();
-      if (certCode == db[0].certCode && db[0].valid && expiredDate > now) {
-        return res.json({
-          status: true,
-          code: 200,
-          msg: '인증성공'
-        });
+      if (certCode != db[0].certCode) {
+        return res
+          .status(400)
+          .json(new CertCodeNotMatch('인증코드가 일치하지 않습니다.'));
+      } else if (!db[0].valid) {
+        return res
+          .status(400)
+          .json(new CertCodeInvaild('인증코드가 유효하지 않습니다.'));
+      } else if (expiredDate < now) {
+        return res
+          .status(400)
+          .json(new CertCodeExpired('인증코드가 만료되었습니다,'));
       }
+      return res.json({
+        success: true,
+        statusCode: 200,
+        code: null,
+        description: '인증성공'
+      });
     }
-    throw new Error();
   } catch (err) {
-    return res.status(500).json({
-      status: false,
-      code: 500,
-      msg: err
-    });
+    const errorMessage =
+      err instanceof Error ? err.message : '알 수 없는 에러가 발생했습니다.';
+    return res.status(500).json(new MailSendFail(errorMessage));
   }
 });
 

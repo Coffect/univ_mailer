@@ -40,6 +40,6 @@ async function send(dest, code) {
         return result;
     }
     catch (error) {
-        return error;
+        throw error;
     }
 }
