@@ -1,0 +1,38 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Univ Mailer 
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy: 
+    runs-on: ubuntu-latest
+    steps:
+        - name: Setup Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+            cache: 'npm'
+
+        - name: SSH Deployment
+          # You may pin to the exact commit or the version.
+          # uses: saranraj3195/sparkout-deployment@c4665eb5fc6ae732e5f15341125b89c3c96b9680
+          uses: saranraj3195/sparkout-deployment@v2
+          with:
+          # SSH private key for authentication
+            DEPLOY_KEY: ${{secrets.SSH_KEY}}
+          # SSH username
+            USERNAME: ${{secrets.SSH_USERNAME}}
+          # IP address of the server
+            SERVER_IP: ${{secrets.SSH_IP}}
+          # SSH port of the server
+            SERVER_PORT: ${{secrets.SSH_PORT}}
+          # Destination directory on the server
+            SERVER_DESTINATION: ${{secrets.SSH_DEST}}
+        
+      
+
+  
