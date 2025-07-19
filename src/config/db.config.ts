@@ -10,7 +10,9 @@ let connectionConfig: mysql.ConnectionOptions = {
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME
 };
+
 connectionConfig = {
+  //ssh 터널링 이후 진행
   ...connectionConfig,
   host: 'localhost',
   port: 3307
