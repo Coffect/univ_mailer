@@ -11,9 +11,11 @@ import {
   CertCodeInvaild,
   CertCodeNotMatch,
   errorHandler,
+  MailNotUniv,
   MailSendFail
 } from './config/error';
 import { isUnivDomain } from './config/config';
+import logger from './config/logger';
 
 dotenv.config();
 const app = express();
@@ -23,7 +25,7 @@ const port = process.env.EC2_PORT || 3001;
 app.use(cors());
 app.use(express.json()); // JSON 본문을 파싱
 app.use(express.urlencoded({ extended: true })); // HTML Form에서 전송된 데이터를 파싱
-app.use(morgan('dev')); // HTTP Req 요청 로그 출력
+app.use(logger); // HTTP Req 요청 로그 출력
 
 // 에러 핸들러 미들웨어를 라우터 정의 전에 등록
 app.use(errorHandler);
@@ -42,13 +44,9 @@ app.post('/univ/mail', async (req, res) => {
   const code = Math.floor(100000 + Math.random() * 900000); // 6자리 코드
   const q = process.env.SQL_UPDATECERT!;
 
-  // const domain = userEmail.split('@')[1].split('.');
-  // console.log(domain);
-
-  // console.log(isUnivDomain(userEmail));
   const isUniv = isUnivDomain(userEmail);
   if (!isUniv) {
-    return res.status(401).json(new MailSendFail('학교 도메인이 아닙니다.'));
+    return res.status(401).json(new MailNotUniv('학교 도메인이 아닙니다.'));
   }
   try {
     await send(userEmail, code);
@@ -116,6 +114,6 @@ app.post('/univ/mail', async (req, res) => {
 // });
 
 // 서버 실행
-app.listen(port, () => {
+app.listen(3002, () => {
   console.log(`Sever is running on port ${port}`);
 });

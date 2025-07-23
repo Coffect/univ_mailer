@@ -60,6 +60,11 @@ export class MailSendFail extends BasicError {
     super(500, 'EC500', '메일전송에 실패했습니다.', description);
   }
 }
+export class MailNotUniv extends BasicError {
+  constructor(description: any) {
+    super(401, 'EC401', '학교 도메인이 아닙니다.', description);
+  }
+}
 export class CertCodeNotMatch extends BasicError {
   constructor(description: any) {
     super(400, 'EC1', '인증코드가 일치하지 않습니다.', description);
