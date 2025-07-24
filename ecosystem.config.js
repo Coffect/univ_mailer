@@ -1,11 +1,18 @@
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 dotenv.config();
 
 module.exports = {
   apps: [
     {
+      name: 'ssh-tunnel',
+      scrpit: 'ssh',
+      args: "-L 3307:coffect-database.ctiiy4oiaiau.ap-northeast-2.rds.amazonaws.com:3306 -N -f -i '~/.ssh/coffect-keypair.pem' ubuntu@3.34.146.212",
+      autorestart: true,
+      watch: false
+    },
+    {
       name: 'univ-mailer',
-      script: './dist/main.js',
+      script: './dist/app.js',
       instances: 1,
       exec_mode: 'fork',
       env: {
@@ -17,9 +24,6 @@ module.exports = {
         DATABASE_NAME: process.env.DATABASE_NAME,
         SQL_SELECTCERT: process.env.SQL_SELECTCERT,
         SQL_UPDATECERT: process.env.SQL_UPDATECERT
-        // DATABASE_Endpoint: process.env.DATABASE_Endpoint
-        // NODE_ENV: process.env.ENV,
-        // ENV: process.env.ENV,
       }
     }
   ]
