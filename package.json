@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "sshTunnel": "ssh -L 3307:coffect-database.ctiiy4oiaiau.ap-northeast-2.rds.amazonaws.com:3306 -N -f -i '~/.ssh/coffect-keypair.pem' ubuntu@3.34.146.212",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm run sshTunnel && tsc",
-    "dev": "nodemon --watch '*.ts' --exec ts-node ./src/app.ts"
+    "build": "tsc",
+    "dev": "nodemon --watch '*.ts' --exec ts-node ./src/app.ts",
+    "run": "npm run build && pm2 start ecosystem.config.js"
   },
   "repository": {
     "type": "git",
