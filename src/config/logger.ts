@@ -2,7 +2,6 @@
 import morgan from 'morgan';
 import chalk from 'chalk';
 
-// 사용자 정의 토큰 생성
 import type { IncomingMessage } from 'http';
 
 morgan.token('remote-ip', (req: IncomingMessage) => {
