@@ -17,6 +17,7 @@ app.use(cors());
 app.use(express.json()); // JSON 본문을 파싱
 app.use(express.urlencoded({ extended: true })); // HTML Form에서 전송된 데이터를 파싱
 app.use(logger); // HTTP Req 요청 로그 출력
+app.use('/public', express.static('public')); // 정적 파일 서빙
 
 // 에러 핸들러 미들웨어를 라우터 정의 전에 등록
 app.use(errorHandler);
