@@ -66,11 +66,7 @@ const html = (code: number) => {
         <table role="presentation" width="560" class="container" style="width:560px;background:transparent;border-collapse:collapse;">
           <tr>
             <td style="padding:0 0 16px 0;text-align:center;">
-              ${
-                imageBase64
-                  ? `<img src="${imageSrc}" width="40" height="40" style="display:inline-block;border:0;" alt="Coffect">`
-                  : ''
-              }
+              <img src="https://coffect-s3.s3.ap-northeast-2.amazonaws.com/coffect.png" width="40" height="40" style="display:inline-block;border:0;" alt="Coffect">
             </td>
           </tr>
 
@@ -80,7 +76,7 @@ const html = (code: number) => {
                 Coffect 대학 인증
               </h1>
               <p class="text" style="margin:0 0 16px 0;font-size:15px;line-height:1.7;color:#374151;">
-                아래 6자리 코드를 10분 이내에 입력해 주세요.
+                아래 5자리 코드를 10분 이내에 입력해 주세요.
               </p>
 
               <div class="code" style="font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
